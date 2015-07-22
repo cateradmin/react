@@ -1,0 +1,292 @@
+React使用要点：
+一 引用库
+	1.需要用到的库，react.js(必须)和JSXTransformer.js(根据情况定)。JSXTransformer.js 的作用是将 JSX 语法转为 JavaScript 语法，
+	这一步很消耗时间，实际上线的时候，应该将它放到服务器完成或者预先用jsx命令编译，再引用相关的js文件。
+	2.如果自定义的js文件并采用JSX语法编写，除了引入该JS文件的时候需要将type设置为“text/jsx”，
+	如：<script type="text/jsx" src="../JS/demo1.js"></script>，而且还需要引入JSXTransformer.js文件。
+	注：用jsx命令编译生成的js文件并且涉及到使用HTML元素的ID来渲染，不要在<head />标签里面引用该JS文件，建议放在页面的最后引用，因React在解析的时候，未
+	   找到相关HTML元素的ID，会报Target container is not a DOM element.
+二 基本语法
+	1.React.render(ReactElement element, DOMElement container, [function callback])方法
+		React.render 是 React 的最基本方法，用于将模板转为 HTML 语言，并插入指定的 DOM 节点.该方法接收2-3个参数， 
+		并返回ReactComponent类型的对象，当组件被添加到DOM中后，执行回调。element可以是HTML元素，也可以是React定
+		义的对象，container为HTML元素的对象。示例：
+		//直接写HTML元素
+		React.render(
+		  <h1>Hello, world!</h1>,
+		  document.getElementById('example')
+		);
+		//直接引用react中定义的对象
+		React.render(
+		  <MyComponent name="myComponent" />,//后面介绍
+		  document.getElementById('example')
+		);
+		
+		document.getElementById('example')中的example为HTML元素的ID，如：<div id="example"></div>。
+	2.jsx语法
+		2.1 HTML语言直接写在 JavaScript语言之中，不加任何引号，它允许 HTML与 JavaScript的混写。示例：
+			var fruits =["apple","banana","orange"];
+			React.render(
+					<div>{
+						fruits.map(function(fruit){
+							return <div>this is {fruit}</div>
+						})
+					}
+					</div>,
+					document.getElementById("array")
+			);
+			上面代码体现了 JSX 的基本语法规则：遇到 HTML 标签（以 < 开头），就用 HTML 规则解析；遇到代码块（以 { 开头），
+			就用 JavaScript 规则解析。
+		2.2 JSX 允许直接在模板插入 JavaScript 变量。如果这个变量是一个数组，则会展开这个数组的所有成员。示例：
+			var arr = [
+			  <h1>Hello world!</h1>,
+			  <h2>React is awesome</h2>,
+			];
+			React.render(
+			  <div>{arr}</div>,
+			  document.getElementById('example')
+			);
+			界面效果显示：
+			Hello world!
+			React is awesome
+	3 创建组件
+		3.1 React 允许将代码封装成组件（component），然后像插入普通 HTML 标签一样，在网页中插入这个组件，
+		 	React.createClass(object specification) 方法就用于生成一个组件类，传入的specification参数必须包含render方法，用于
+	    	渲染虚拟DOM，render返回ReactElement类型。创建组件变量的名字第一个字母需要大写(驼峰寺命名)，否则无效(实际上小写按HTML标签解析)。
+	    	示例;
+		    	var OwnComponent = React.createClass({
+		    		//自定义方法
+		    		print:function(){
+		    			console.log("自定义方法")
+		    		},
+		    		//render方法必须定义
+					render: function(){
+						return <div>
+									Owncomponent.propery.name:{this.props.name},<br/> 
+									Owncomponent.propery.children:{this.props.children}
+								</div>;
+					}
+				})
+			在写return语句的时候，如果返回的标签较多，需要在外面加个标签进行嵌套,否则只渲染最后一个标签，不能直接返回字符串。
+		3.2 使用组件：
+				React.render(
+					<OwnComponent name="test">I'm children node.<div>second node</div></OwnComponent>,
+					document.getElementById("owncpt")
+				);
+			组件的属性可以通过组件类的 this.props 对象上获取，比如 name 属性就可以通过 this.props.name 读取。获取子节点通过
+			this.props.children对象，结果是返回该节点下的所有子节点(多个节点的时候是以数组的形式展现)。在上面的例子中，会将所
+			有的子节点读取出来并输出到显示器上。
+	4 操作DOM节点
+		React创建的组件并不是真实的 DOM 节点，而是存在于内存之中的一种数据结构，叫做虚拟 DOM （virtual DOM）。只有当它插入文档以后，
+		才会变成真实的 DOM 。根据 React 的设计，所有的 DOM 变动，都先在虚拟 DOM 上发生，然后再将实际发生变动的部分，反映在
+		真实 DOM上，这种算法叫做 DOM diff ，它可以极大提高网页的性能表现.虚拟 DOM 是拿不到用户输入的。为了做到这一点，文本输入框必须有
+		一个 ref 属性，然后 this.refs.[refName] 就指向这个虚拟 DOM 的子节点，最后通过 React.findDOMNode 方法获取真实 DOM 的节点.
+		示例：
+			var Mycompent = React.createClass({
+				handleClick: function(){
+					//用this.refs.[refName]方法传参数，例如this.refs.myTextInput，myTextInput为HTML元素的ref值
+					var myTextInput = React.findDOMNode(this.refs.myTextInput);
+					myTextInput.focus();
+					myTextInput.value += "test";
+				},
+				render: function(){
+					return (
+							<div>
+								<input type="text" ref="myTextInput" />//在标签中添加ref属性，唯一，类似用ID属性
+								<input type="button" style={{marginLeft: "50px",color:"red"}} value="click" onClick={this.handleClick} />
+							</div>
+					)
+				}
+			});
+		
+			React.render(
+				<Mycompent />,
+				document.getElementById("content")
+			);
+		
+	5 更新组件显示信息
+		React 的一大创新，就是将组件看成是一个状态机，一开始有一个初始状态，然后用户互动，导致状态变化，从而触发重新渲染 UI。
+		示例代码：
+			var MyFormComponent = React.createClass({
+				//设置初始状态：clickCount=0
+				getInitialState:function(){
+					return {clickCount:0};
+				},
+				handleClik:function(){
+					//改变状态clickCount的值，改变之后会重新渲染
+					this.setState({clickCount:this.state.clickCount+1});
+				},
+				render: function(){
+					return (<div>
+						<label>clickCount:{this.state.clickCount}</label>,
+						<input type="button" value="click" onClick={this.handleClik} />
+						</div>)
+				}
+			});
+			
+			React.render(<MyFormComponent />,document.getElementById("click"))
+			
+			上面代码中，getInitialState 方法用于定义初始状态，也就是一个对象，这个对象可以通过 this.state 属性读取。
+			当用户点击组件，导致状态变化，this.setState 方法就修改状态值，每次修改以后，自动调用 this.render 方法，再次渲染组件。
+	
+	6 关于this.props和this.state
+		this.props 和 this.state 都用于描述组件的特性,一个简单的区分方法是，this.props 表示那些一旦定义，就不再改变的特性，
+		例如：<MyComponent name="myComponent" url="localhost/data.json" />,name和url属性就通过this.props对象
+		来获取。而 this.state 是会随着用户互动而产生变化的特性,通常是与数据（data）相关的.
+		
+	7 生命周期
+		组件的生命周期分成三个状态：
+			Mounting：已插入真实 DOM
+			Updating：正在被重新渲染
+			Unmounting：已移出真实 DOM
+		React 为每个状态都提供了两种处理函数，will 函数在进入状态之前调用，did 函数在进入状态之后调用，三种状态共计五种处理函数：
+			componentWillMount()
+			componentDidMount()
+			componentWillUpdate(object nextProps, object nextState)
+			componentDidUpdate(object prevProps, object prevState)
+			componentWillUnmount()
+		此外，React 还提供两种特殊状态的处理函数。
+			componentWillReceiveProps(object nextProps)：已加载组件收到新的参数时调用
+			shouldComponentUpdate(object nextProps, object nextState)：组件判断是否重新渲染时调用
+			
+	8 混合--mixins
+		简单理解，就是把 一个 mixin 对象上的方法都混合到了另一个组件上，和 $.extend 方法做的事情类似。在mixin中写的
+		生命周期相关的回调都会被合并，也就是他们都会执行，而不会互相覆盖掉。执行顺序：会先执行 mixin对象的 的 componentDidMount ，
+		最后执行组件的 componentDidMount 方法。mixin的作用是抽离公共功能，不存在渲染dom的需要，所以它没有render方法。如果
+		定义了render方法，那么他会和组件的render方法冲突而报错。
+		示例代码：
+			//define initMethod()
+			var initMethod = function(){
+				return {
+					printTest:function(){
+						console.log("print1");
+					},
+					componentWillmount: function() {
+						console.log(" mixins componentWillmount");
+					},
+					componentDidMount:function(){
+						console.log(" mixins componentDidMount");
+					}
+				}
+			}
+			
+			var MixinComponent = React.createClass({
+				componentWillmount: function() {
+					console.log(" MixinComponent componentWillmount");
+				},
+				componentDidMount:function(){
+					//调用混合对象里面的方法
+					this.printTest();
+					console.log(" MixinComponent componentDidMount");
+				},
+				//使用mixins字段进行混合
+				mixins:[initMethod()],
+				render:function(){
+					return <div>tests</div>
+				}
+			});
+			
+			React.render(<MixinComponent />,document.getElementById("container5"));
+	9 extends
+		示例代码:
+		class MyComponent extends React.Component{
+			render(){
+				console.log("parent");
+			//todo
+				return <p style={{color:"red",background:'#F2F2F2'}}>this is parent component info</p> 
+			}
+			componentWillMount(){
+				console.log("parent insert")
+			}
+			componentDidMount(){
+				console.log("parent insert did")
+			}
+			print(){
+				console.log("parent print")
+				this.print2();
+			}
+		}
+		
+		class ChildComponent extends MyComponent{
+			render(){
+				console.log("child");
+				return <p style={{color:"red",background:'#F0FFF0'}}>this is child component info</p> 
+			}
+			componentWillMount(){
+		//		console.log("child insert")
+			this.print();
+			}
+			print2(){
+				var array=["a","b","c","d"];
+				console.log("child print2");
+				console.log(...array);//output: a b c d
+				console.log(array);//output: ["a","b","c","d"]
+			}
+		}
+		//
+		React.render(<MyComponent />,getDomId("container"),function(){console.log("callback")});
+		React.render(<ChildComponent />,getDomId("container2"));	
+	
+		关于react中的继承，感觉与平常了解的继承有点出入，目前测试：
+			1.父组件可以调用子组件定义的方法。
+			2.对于组件默认定义的方法，如componentWillMount（）等，子组件重写了就用自己的，否则就用父组件的
+	10 AJAX
+		示例代码:
+		var Mycombox = React.createClass({
+			getInitialState:function(){
+				return {data:[]}
+			},
+			componentDidMount: function(){
+				//在组件渲染完之后进行ajax请求数据
+				var me = this;
+				$.ajax({
+				    url: this.props.url,
+				    type: 'GET',
+				    async:false,
+				    timeout: 5000,
+				    error: function(response){
+				        console.log('loading data error!');
+				    },
+				    success: function(response,status){
+				    	//在ajax同步请求数据时，需要用isMounted()方法检测组件的状态是否是mounted
+				        if (me.isMounted()) {
+				        	me.setState({
+						          data: response
+						        });
+				        }
+				    }
+				});
+			},
+			render: function(){
+				return <select>
+						{
+							this.state.data.map(function(record){
+								return <option>{record.name}</option>;
+							})
+						}
+					   </select>
+			}
+		});
+		
+		React.render(
+				<Mycombox url="/learnReactJS/data/combox.json" />,
+				document.getElementById("content3")
+		);
+		
+		
+	11.其他一些api
+		1)顶层API:React.createClass ,React.createElement,React.createFactory,React.render
+				 React.unmountComponentAtNode
+		2)组件API;setState,replaceState,forceUpdate(),getDOMNode,isMounted() ,setProps,
+				 replaceProps()(删除所有已存在的 props，而不是合并新旧两个 props 对象).
+		
+三  react-tools 编译方法
+	1.安装react-tools ,在控制端输入命令：npm install -g react-tools
+		关于npm命令，我采用的node.js最新版安装，安装node.js后，npm工具也自动安装完成。
+	2.进入cd examples/JS/ 文件夹下
+	3.执行命令:jsx . build/,执行完后会将js文件中的JSX语法转换成React.createElement()方法.
+	
+四 Demo
+	1
+	
+	

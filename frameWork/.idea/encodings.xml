@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/src/actions/AppActions.js" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/app.js" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/components/App/App.js" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/components/atlantis/Login/Login.js" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/components/atlantis/Login/Login.less" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/components/atlantis/MainPage/MainPage.js" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/components/atlantis/MyInput/MyInput.js" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/components/atlantis/Password/Password.js" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/constants/ActionTypes.js" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/fluxDemo/flux-todomvc/js/constants/TodoConstants.js" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/fluxDemo/flux-todomvc/js/stores/TodoStore.js" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/stores/AppStore.js" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/webstorm_react/note.md" charset="UTF-8" />
+  </component>
+</project>

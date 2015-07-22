@@ -1,0 +1,25 @@
+1.组件与组件交互的另一种方式（There's another (uncommon) way of communicating between components: 
+	simply expose a method on the child component for the parent to call.）
+	示例代码(demo8)：
+	
+	var ParentComponent=React.createClass({
+		parentOnclick:function(e){
+			console.log("parentOnclick:"+e.target.value)
+		},
+		render:function(){
+			return <ChildComponent myOnclick={this.parentOnclick} />
+		}
+	});
+
+	var ChildComponent = React.createClass({
+		ownClick:function(e){
+			console.log("ownClick");
+			this.props.myOnclick(e);
+		},
+		render: function(){
+	//		return <input onChange={this.ownClick} />;//先调用当前ownClick方法，再调用ParentComponent里面的方法
+			return <input onChange={this.props.myOnclick} />;//直接调用ParentComponent组件里面定义的方法
+		}
+	});
+
+	React.render(<ParentComponent />,getDomId("content3"))
